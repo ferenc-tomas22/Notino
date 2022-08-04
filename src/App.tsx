@@ -1,45 +1,41 @@
 import React from 'react'
-
-import Todo from './Todo'
-
-// rework this into regular api call, feel free to use any open api
-var todos = (): Promise<{ id: string; title: string }[]> =>
-  new Promise((res) => {
-    setTimeout(() => {
-      res([
-        {
-          id: '1',
-          title: 'Go shopping',
-        },
-        {
-          id: '2',
-          title: 'Job interview',
-        },
-        {
-          id: '3',
-          title: 'Prepare homework',
-        },
-      ])
-    }, 100)
-  })
+import SingleTodo from './SingleTodo'
+export interface Todo {
+  id: number
+  userId: number
+  title: string
+  completed: boolean
+}
 
 function App() {
-  const [state, setState] = React.useState<{ id: string; title: string }[]>([])
+  const [ todos, setTodos ] = React.useState<Todo[]>([])
+  const [ loading, setLoading ] = React.useState(false)
 
   React.useEffect(() => {
-    ;(async () => {
-      var awaitedTodos = await todos()
-      for (var i = 0; i < awaitedTodos.length; i++) {
-        setState([...state, awaitedTodos[i]])
+    const controller = new AbortController()
+    const getTodos = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(process.env.REACT_APP_API_GET_TODOS ?? '', { signal: controller.signal })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.length > 0) {
+            setTodos(data)
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
       }
-    })()
+    }
+    getTodos()
+    return () => controller.abort()
   }, [])
 
   return (
     <div>
-      {state.map((todo) => (
-        <Todo todo={todo} />
-      ))}
+      { todos.map(todo => <SingleTodo todo={todo} /> ) }
     </div>
   )
 }
