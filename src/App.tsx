@@ -1,19 +1,16 @@
 import React from 'react'
 import SingleTodo from './SingleTodo'
-export interface Todo {
-  id: number
-  userId: number
-  title: string
-  completed: boolean
-}
+import { AppContext } from './AppContext'
+// import { getTodos } from './getTodos'
 
 function App() {
-  const [ todos, setTodos ] = React.useState<Todo[]>([])
+  const { todos, setTodos } = React.useContext(AppContext)
   const [ loading, setLoading ] = React.useState(false)
 
+  //? Get todos from API
   React.useEffect(() => {
     const controller = new AbortController()
-    const getTodos = async () => {
+    const getData = async () => {
       setLoading(true)
       try {
         const response = await fetch(process.env.REACT_APP_API_GET_TODOS ?? '', { signal: controller.signal })
@@ -22,6 +19,8 @@ function App() {
           if (data.length > 0) {
             setTodos(data)
           }
+        } else {
+          throw new Error('Something went wrong...')
         }
       } catch (err) {
         console.error(err)
@@ -29,13 +28,45 @@ function App() {
         setLoading(false)
       }
     }
-    getTodos()
+    getData()
     return () => controller.abort()
   }, [])
 
+  //? Get todos from Promise
+  // React.useEffect(() => {
+  //   let shouldUpdate = true
+  //   const getData = async () => {
+  //     try {
+  //       const response = await getTodos()
+  //       if (shouldUpdate && response.length > 0) {
+  //         setTodos(response)
+  //       }
+  //     } catch (err) {
+  //       console.error(err)
+  //     }
+  //   }
+  //   getData()
+  //   return () => {
+  //     shouldUpdate = false
+  //   }
+  // }, [])
+
   return (
-    <div>
-      { todos.map(todo => <SingleTodo todo={todo} /> ) }
+    <div className='container'>
+      <div className='d-flex flex-column align-items-center justify-content-center mt-5'>
+        {
+          loading ? (
+            <>
+              <span>Loading...</span>
+              <div className='spinner-border'></div>
+            </>
+          ) : (
+            <ul className='list-group'>
+              { todos.map(todo => <SingleTodo key={ todo.id } todo={ todo } />) }
+            </ul>
+          )
+        }
+      </div>
     </div>
   )
 }
