@@ -1,16 +1,12 @@
 import React from 'react'
 import { Todo } from './getTodos'
 
-interface AppContext {
+type AppContextType = {
   todos: Todo[]
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
 }
-export const AppContext = React.createContext<AppContext>({
-  todos: [],
-  setTodos: () => {},
-})
-
-export const AppContextProvider = ({ children}: { children: React.ReactNode }) => {
+export const AppContext = React.createContext<AppContextType>({ todos: [], setTodos: () => {} })
+export const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [ todos, setTodos ] = React.useState<Todo[]>([])
   return (
     <AppContext.Provider value={{ todos, setTodos }}>
