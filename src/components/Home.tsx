@@ -1,7 +1,10 @@
 import React from 'react'
-import SingleTodo from '../SingleTodo'
 import { AppContext } from '../AppContext'
+import SingleTodo from './SingleTodo'
 // import { getTodos } from '../getTodos'
+
+// Constants
+const LOADING = 'Loading...'
 
 const Home = () => {
   const { todos, setTodos } = React.useContext(AppContext)
@@ -59,7 +62,7 @@ const Home = () => {
         {
           loading ? (
             <>
-              <span>Loading...</span>
+              <span>{ LOADING }</span>
               <div className='spinner-border'></div>
             </>
           ) : (
